@@ -1,11 +1,3 @@
-//
-//  URLSessionRequestTests.swift
-//  AsyncRequest
-//
-//  Created by Juan Jose Arreola on 18/05/17.
-//
-//
-
 import XCTest
 import AsyncRequest
 
@@ -26,12 +18,13 @@ class URLSessionRequestTests: XCTestCase {
         
         let request = URLSessionRequest<String>()
         request.fail { error in
-            XCTAssertEqual(request.dataTask?.state, URLSessionTask.State.canceling)
-            expectation.fulfill()
+            DispatchQueue.main.async {
+                XCTAssertEqual(request.dataTask?.state, URLSessionTask.State.canceling)
+                expectation.fulfill()
+            }
         }
         let url = URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=AR&w=400&h=200&bg=0000ff")!
         request.dataTask = self.request(url: url, completion: { _ in })
-        
         request.cancel()
         
         wait(for: [expectation], timeout: 1.0)

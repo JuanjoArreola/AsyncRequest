@@ -1,11 +1,3 @@
-//
-//  RequestProxyTests.swift
-//  AsyncRequest
-//
-//  Created by Juan Jose Arreola on 18/05/17.
-//
-//
-
 import XCTest
 import AsyncRequest
 
