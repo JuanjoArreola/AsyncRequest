@@ -37,11 +37,6 @@ open class Request<T>: Cancellable {
         handlers?.add(completionHandler: completionHandler)
     }
     
-    public convenience init(subrequest: Cancellable) {
-        self.init()
-        self.subrequest = subrequest
-    }
-    
     /// Cancels the request and subrequest and call the handlers, subsequent calls are ignored
     open func cancel() {
         subrequest?.cancel()

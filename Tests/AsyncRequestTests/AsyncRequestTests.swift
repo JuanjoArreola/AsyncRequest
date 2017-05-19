@@ -103,7 +103,8 @@ class AsyncRequestTests: XCTestCase {
         let expectation: XCTestExpectation = self.expectation(description: "testCancel")
         
         let subrequest = Request<String>()
-        let request = Request<String>(subrequest: subrequest)
+        let request = Request<String>()
+        request.subrequest = subrequest
         subrequest.fail { error in
             expectation.fulfill()
         }
