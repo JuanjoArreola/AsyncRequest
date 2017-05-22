@@ -1,13 +1,5 @@
 import Foundation
 
-public enum RequestError: Error {
-    case canceled
-}
-
-public protocol Cancellable {
-    func cancel()
-}
-
 open class Request<T>: Cancellable {
     
     private var handlers: RequestHandlers<T>? = RequestHandlers<T>()
