@@ -19,6 +19,22 @@ open class Request<T>: Cancellable {
         return object != nil || error != nil
     }
     
+    static func completed(with error: Error, in queue: DispatchQueue) -> Request<T> {
+        let request = Request<T>()
+        queue.async {
+            request.complete(with: error)
+        }
+        return request
+    }
+    
+    static func completed(with object: T, in queue: DispatchQueue) -> Request<T> {
+        let request = Request<T>()
+        queue.async {
+            request.complete(with: object)
+        }
+        return request
+    }
+    
     public init() {}
     
     public init(successHandler: @escaping (T) -> Void) {
