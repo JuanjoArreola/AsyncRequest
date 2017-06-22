@@ -7,8 +7,8 @@ class RequestGroup: Cancellable {
     private var requests: [Cancellable] = []
     private var requestCount = 0
     
-    private var finishHandler: () -> Void
-    private var errorHandler: ((Error) -> Void)?
+    private let finishHandler: () -> Void
+    private let errorHandler: ((Error) -> Void)?
     
     init(finished: @escaping () -> Void, errorHandler: ((Error) -> Void)?) {
         self.finishHandler = finished
