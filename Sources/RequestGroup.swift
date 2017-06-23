@@ -1,8 +1,8 @@
 import Foundation
 
-class RequestGroup: Cancellable {
+public class RequestGroup: Cancellable {
     
-    var completed = false
+    public var completed = false
     private var observing = false
     private var requests: [Cancellable] = []
     private var requestCount = 0
@@ -10,12 +10,12 @@ class RequestGroup: Cancellable {
     private let finishHandler: () -> Void
     private let errorHandler: ((Error) -> Void)?
     
-    init(finished: @escaping () -> Void, errorHandler: ((Error) -> Void)?) {
+    public init(finished: @escaping () -> Void, errorHandler: ((Error) -> Void)?) {
         self.finishHandler = finished
         self.errorHandler = errorHandler
     }
     
-    func add<T>(request: Request<T>) {
+    public func add<T>(request: Request<T>) {
         if observing { return }
         requests.append(request)
         request.finished {
@@ -28,12 +28,12 @@ class RequestGroup: Cancellable {
         requestCount += 1
     }
     
-    func startObserving() {
+    public func startObserving() {
         observing = true
         update()
     }
     
-    func cancel() {
+    public func cancel() {
         requests.forEach({ $0.cancel() })
     }
     
