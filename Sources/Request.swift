@@ -35,14 +35,10 @@ open class Request<T>: Cancellable {
         return request
     }
     
-    public init() {}
-    
-    public init(successHandler: @escaping (T) -> Void) {
-        handlers?.add(successHandler: successHandler)
-    }
-    
-    public init(completionHandler: @escaping (_ getObject: () throws -> T) -> Void) {
-        handlers?.add(completionHandler: completionHandler)
+    public init(successHandler: ((T) -> Void)? = nil) {
+        if let handler = successHandler {
+            handlers?.add(successHandler: handler)
+        }
     }
     
     /// Cancels the request and subrequest and call the handlers, subsequent calls are ignored
@@ -97,35 +93,18 @@ open class Request<T>: Cancellable {
         return self
     }
     
-    public func add(completionHandler completion: @escaping (_ getObject: () throws -> T) -> Void) {
-        if let object = object {
-            completion({ return object })
-        } else if let error = error {
-            completion({ throw error })
-        } else {
-            handlers?.add(completionHandler: completion)
-        }
-    }
-    
     // MARK: - Proxy
     
-    public func proxy(completion: @escaping (_ getObject: () throws -> T) -> Void) -> Request<T> {
-        return setup(proxy: Request<T>(completionHandler: completion))
-    }
-    
     public func proxy(success: @escaping (T) -> Void) -> Request<T> {
-        return setup(proxy: Request<T>(successHandler: success))
-    }
-    
-    @inline(__always)
-    private func setup(proxy: Request<T>) -> Request<T> {
+        let request = Request<T>(successHandler: success)
         if let object = object {
-            proxy.complete(with: object)
+            request.complete(with: object)
         } else if let error = error {
-            proxy.complete(with: error)
+            request.complete(with: error)
         } else {
-            handlers?.add(proxy: proxy)
+            handlers?.add(proxy: request)
         }
-        return proxy
+        
+        return request
     }
 }

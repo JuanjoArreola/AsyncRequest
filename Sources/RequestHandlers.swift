@@ -4,8 +4,6 @@ private let syncQueue: DispatchQueue = DispatchQueue(label: "com.request.SyncQue
 
 class RequestHandlers<T> {
     
-    private var completionHandlers: [(_ getObject: () throws -> T) -> Void] = []
-    
     private var successHandlers: [(T) -> Void] = []
     private var errorHandlers: [(Error) -> Void] = []
     private var finishHandlers: [() -> Void] = []
@@ -24,17 +22,12 @@ class RequestHandlers<T> {
         finishHandlers.append(finishHandler)
     }
     
-    func add(completionHandler: @escaping (_ getResult: () throws -> T) -> Void) {
-        completionHandlers.append(completionHandler)
-    }
-    
     func add(proxy: Request<T>) {
         proxies.append(proxy)
     }
     
     func complete(with object: T) {
         proxies.forEach({ $0.complete(with: object) })
-        completionHandlers.forEach({ $0({ return object }) })
         successHandlers.forEach({ $0(object) })
         finishHandlers.forEach({ $0() })
         clear()
@@ -42,14 +35,12 @@ class RequestHandlers<T> {
     
     func complete(with error: Error) {
         proxies.forEach({ $0.complete(with: error) })
-        completionHandlers.forEach({ $0({ throw error }) })
         errorHandlers.forEach({ $0(error) })
         finishHandlers.forEach({ $0() })
         clear()
     }
     
     func clear() {
-        completionHandlers = []
         successHandlers = []
         errorHandlers = []
         finishHandlers = []
