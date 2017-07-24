@@ -84,12 +84,14 @@ class AsyncRequestTests: XCTestCase {
         let expectation: XCTestExpectation = self.expectation(description: "testCancel")
         
         let request = Request<String>()
-        request.add { getResult in
+        request.success { _ in
+            XCTFail()
+        }.finished {
+            expectation.fulfill()
+        }.fail { error in
             do {
-                _ = try getResult()
-                XCTFail()
+                throw error
             } catch RequestError.canceled {
-                expectation.fulfill()
             } catch {
                 XCTFail()
             }

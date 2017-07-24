@@ -17,16 +17,13 @@ class RequestProxyTests: XCTestCase {
         let expectation: XCTestExpectation = self.expectation(description: "testCompleteSuccess")
         
         let request = Request<String>()
-        _ = request.proxy(completion: { getResult in
-            do {
-                let string = try getResult()
-                XCTAssertEqual(string, "Test")
-                expectation.fulfill()
-            } catch {
-                XCTFail()
-            }
-        })
-        
+        request.proxy { string in
+            XCTAssertEqual(string, "Test")
+        }.fail { error in
+            XCTFail()
+        }.finished {
+            expectation.fulfill()
+        }
         request.complete(with: "Test")
         
         wait(for: [expectation], timeout: 1.0)
@@ -50,14 +47,11 @@ class RequestProxyTests: XCTestCase {
         let expectation: XCTestExpectation = self.expectation(description: "testCompleteError")
         
         let request = Request<String>()
-        _ = request.proxy(completion: { getResult in
-            do {
-                _ = try getResult()
-                XCTFail()
-            } catch {
-                expectation.fulfill()
-            }
-        })
+        _ = request.proxy(success: { _ in
+            XCTFail()
+        }).finished {
+            expectation.fulfill()
+        }
         
         request.complete(with: TestError.test)
         

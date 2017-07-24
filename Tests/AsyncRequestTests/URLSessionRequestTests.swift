@@ -24,13 +24,13 @@ class URLSessionRequestTests: XCTestCase {
             }
         }
         let url = URL(string: "https://placeholdit.imgix.net/~text?txtsize=33&txt=AR&w=400&h=200&bg=0000ff")!
-        request.dataTask = self.request(url: url, completion: { _ in })
+        request.dataTask = self.request(url: url, completion: { (_, _, _) in })
         request.cancel()
         
         wait(for: [expectation], timeout: 1.0)
     }
     
-    func request(url: URL, completion: @escaping ((data: Data?, response: URLResponse?, error: Error?)) -> Void) -> URLSessionDataTask {
+    func request(url: URL, completion: @escaping (_ data: Data?, _ response: URLResponse?, _ error: Error?) -> Void) -> URLSessionDataTask {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
