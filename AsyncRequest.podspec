@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "AsyncRequest"
-  s.version      = "1.0.3"
+  s.version      = "2.0.0"
   s.summary      = "Useful classes to handle asynchronous code"
 
   s.homepage     = "https://github.com/JuanjoArreola/AsyncRequest"
