@@ -142,4 +142,30 @@ class GroupRequestTests: XCTestCase {
         wait(for: [expectation, errorExpectation], timeout: 4.0)
     }
     
+    func testCancel() {
+        let expectation = self.expectation(description: "cancel")
+        
+        let group = RequestGroup()
+        group.success {
+            XCTFail()
+        }.fail { errors in
+            XCTAssertGreaterThan(errors.count, 0)
+        }.finished {
+            expectation.fulfill()
+        }
+        let first = Request<String> { _ in
+            XCTFail()
+        }
+        let last = Request<String> { _ in
+            XCTFail()
+        }
+        group.add(request: first)
+        group.add(request: last)
+        group.startObserving()
+        
+        group.cancel()
+        
+        wait(for: [expectation], timeout: 4.0)
+    }
+    
 }
