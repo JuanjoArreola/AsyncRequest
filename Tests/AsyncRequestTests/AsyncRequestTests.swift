@@ -15,6 +15,30 @@ class AsyncRequestTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
+    func testSuccessInQueue() {
+        let expectation: XCTestExpectation = self.expectation(description: "testSuccess completed")
+        
+        let request = Request<String>(successHandler: { string in
+            XCTAssertEqual(string, "Test")
+            expectation.fulfill()
+        })
+        request.complete(with: "Test", in: DispatchQueue.global())
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testSuccessStatic() {
+        let expectation: XCTestExpectation = self.expectation(description: "testSuccess static")
+        
+        let request = Request<String>.completed(with: "Test", in: DispatchQueue.main)
+        request.success(handler: { string in
+            XCTAssertEqual(string, "Test")
+            expectation.fulfill()
+        })
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
     func testSuccessHandler() {
         let expectation: XCTestExpectation = self.expectation(description: "testSuccessHandler")
         
@@ -52,6 +76,32 @@ class AsyncRequestTests: XCTestCase {
             expectation.fulfill()
         }
         request.complete(with: TestError.test)
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testFailureStatic() {
+        let expectation: XCTestExpectation = self.expectation(description: "testFailure static")
+        
+        let request = Request<String>.completed(with: TestError.test, in: DispatchQueue.main)
+        request.fail { error in
+            XCTAssertTrue(error is TestError)
+            expectation.fulfill()
+        }
+        request.complete(with: TestError.test)
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testFailureInQueue() {
+        let expectation: XCTestExpectation = self.expectation(description: "testFailure queue")
+        
+        let request = Request<String>()
+        request.fail { error in
+            XCTAssertTrue(error is TestError)
+            expectation.fulfill()
+        }
+        request.complete(with: TestError.test, in: DispatchQueue.global())
         
         wait(for: [expectation], timeout: 1.0)
     }

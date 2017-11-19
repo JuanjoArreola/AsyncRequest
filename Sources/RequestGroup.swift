@@ -2,34 +2,85 @@ import Foundation
 
 public class RequestGroup: Cancellable {
     
-    public var completed = false
-    private var observing = false
+    private var handlers: GroupRequestHandlers? = GroupRequestHandlers()
+    private var acceptingRequests = true
+    
     private var requests: [Cancellable] = []
     private var requestCount = 0
+    private var errors: [Error] = []
     
-    private let finishHandler: () -> Void
-    private let errorHandler: ((Error) -> Void)?
-    
-    public init(finished: @escaping () -> Void, errorHandler: ((Error) -> Void)?) {
-        self.finishHandler = finished
-        self.errorHandler = errorHandler
+    public var completed: Bool {
+        if acceptingRequests { return false }
+        return requests.isEmpty
+    }
+    public var successful: Bool? {
+        if !completed { return nil }
+        return errors.isEmpty
     }
     
+    public init(success: (() -> Void)? = nil) {
+        if let handler = success {
+            handlers?.add(successHandler: handler)
+        }
+    }
+    
+    // MARK: -
+    
+    @discardableResult
+    public func success(handler: @escaping () -> Void) -> Self {
+        guard let success = successful else {
+            handlers?.add(successHandler: handler)
+            return self
+        }
+        if success { handler() }
+        return self
+    }
+    
+    @discardableResult
+    public func fail(handler: @escaping ([Error]) -> Void) -> Self {
+        guard let _ = successful else {
+            handlers?.add(errorsHandler: handler)
+            return self
+        }
+        if !errors.isEmpty { handler(errors) }
+        return self
+    }
+    
+    @discardableResult
+    public func everyFail(handler: @escaping (Error) -> Void) -> Self {
+        if completed { return self }
+        handlers?.add(everyErrorHandler: handler)
+        return self
+    }
+    
+    @discardableResult
+    public func finished(handler: @escaping () -> Void) -> Self {
+        if completed {
+            handler()
+        } else {
+            handlers?.add(finishHandler: handler)
+        }
+        return self
+    }
+    
+    // MARK: -
+    
     public func add<T>(request: Request<T>) {
-        if observing { return }
+        if !acceptingRequests { return }
         requests.append(request)
         request.finished {
             self.requestCount -= 1
             self.update()
         }
-        if let handler = errorHandler {
-            request.fail(handler: handler)
+        request.fail { error in
+            self.handlers?.sendError(error)
+            self.errors.append(error)
         }
         requestCount += 1
     }
     
     public func startObserving() {
-        observing = true
+        acceptingRequests = false
         update()
     }
     
@@ -38,9 +89,13 @@ public class RequestGroup: Cancellable {
     }
     
     private func update() {
-        if !observing || requestCount > 0 { return }
-        completed = true
-        finishHandler()
+        if acceptingRequests || requestCount > 0 { return }
         requests = []
+        if !errors.isEmpty {
+            handlers?.complete(with: errors)
+        } else {
+            handlers?.completeSuccessfully()
+        }
+        handlers = nil
     }
 }

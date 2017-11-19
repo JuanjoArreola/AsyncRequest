@@ -19,6 +19,7 @@ open class Request<T>: Cancellable {
         return object != nil || error != nil
     }
     
+    /// Creates an already falied request, use only on serial queues
     public static func completed(with error: Error, in queue: DispatchQueue) -> Request<T> {
         let request = Request<T>()
         queue.async {
@@ -27,6 +28,7 @@ open class Request<T>: Cancellable {
         return request
     }
     
+    /// Creates an already successful request, use only on serial queues
     public static func completed(with object: T, in queue: DispatchQueue) -> Request<T> {
         let request = Request<T>()
         queue.async {
@@ -74,6 +76,7 @@ open class Request<T>: Cancellable {
     @discardableResult
     public func success(handler: @escaping (T) -> Void) -> Self {
         if let object = object {
+            print("object found")
             handler(object)
         } else {
             handlers?.add(successHandler: handler)
@@ -101,7 +104,8 @@ open class Request<T>: Cancellable {
         return self
     }
     
-    // MARK: - Proxy
+    /// Returs a Request object that is a Proxy of this Request,
+    /// when the proxy is canceled the parent Request is not canceled
     
     public func proxy(success: @escaping (T) -> Void) -> Request<T> {
         let request = Request<T>(successHandler: success)
