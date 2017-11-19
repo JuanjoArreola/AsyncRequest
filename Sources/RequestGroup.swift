@@ -2,7 +2,7 @@ import Foundation
 
 public class RequestGroup: Cancellable {
     
-    private var handlers: GroupRequestHandlers? = GroupRequestHandlers()
+    private let handlers = GroupRequestHandlers()
     private var acceptingRequests = true
     
     private var requests: [Cancellable] = []
@@ -20,7 +20,7 @@ public class RequestGroup: Cancellable {
     
     public init(success: (() -> Void)? = nil) {
         if let handler = success {
-            handlers?.add(successHandler: handler)
+            handlers.add(successHandler: handler)
         }
     }
     
@@ -29,7 +29,7 @@ public class RequestGroup: Cancellable {
     @discardableResult
     public func success(handler: @escaping () -> Void) -> Self {
         guard let success = successful else {
-            handlers?.add(successHandler: handler)
+            handlers.add(successHandler: handler)
             return self
         }
         if success { handler() }
@@ -39,7 +39,7 @@ public class RequestGroup: Cancellable {
     @discardableResult
     public func fail(handler: @escaping ([Error]) -> Void) -> Self {
         guard let _ = successful else {
-            handlers?.add(errorsHandler: handler)
+            handlers.add(errorsHandler: handler)
             return self
         }
         if !errors.isEmpty { handler(errors) }
@@ -49,7 +49,7 @@ public class RequestGroup: Cancellable {
     @discardableResult
     public func everyFail(handler: @escaping (Error) -> Void) -> Self {
         if completed { return self }
-        handlers?.add(everyErrorHandler: handler)
+        handlers.add(everyErrorHandler: handler)
         return self
     }
     
@@ -58,7 +58,7 @@ public class RequestGroup: Cancellable {
         if completed {
             handler()
         } else {
-            handlers?.add(finishHandler: handler)
+            handlers.add(finishHandler: handler)
         }
         return self
     }
@@ -73,7 +73,7 @@ public class RequestGroup: Cancellable {
             self.update()
         }
         request.fail { error in
-            self.handlers?.sendError(error)
+            self.handlers.sendError(error)
             self.errors.append(error)
         }
         requestCount += 1
@@ -92,10 +92,9 @@ public class RequestGroup: Cancellable {
         if acceptingRequests || requestCount > 0 { return }
         requests = []
         if !errors.isEmpty {
-            handlers?.complete(with: errors)
+            handlers.complete(with: errors)
         } else {
-            handlers?.completeSuccessfully()
+            handlers.completeSuccessfully()
         }
-        handlers = nil
     }
 }

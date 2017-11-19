@@ -76,7 +76,6 @@ open class Request<T>: Cancellable {
     @discardableResult
     public func success(handler: @escaping (T) -> Void) -> Self {
         if let object = object {
-            print("object found")
             handler(object)
         } else {
             handlers?.add(successHandler: handler)
