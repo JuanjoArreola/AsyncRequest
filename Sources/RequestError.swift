@@ -1,5 +1,5 @@
 import Foundation
 
 public enum RequestError: Error {
-    case canceled
+    case canceled, timeout
 }
