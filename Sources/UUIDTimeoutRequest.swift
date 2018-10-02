@@ -10,9 +10,9 @@ import Foundation
 @available(OSX 10.12, watchOS 3.0, tvOS 10.0, iOS 10.0, *)
 public class UUIDTimeoutRequest<T>: TimeoutRequest<T>, Hashable, Equatable {
     
-    let uuid: UUID
+    public let uuid: UUID
     
-    override init(timeout: TimeInterval, successHandler: ((T) -> Void)?) {
+    override public init(timeout: TimeInterval, successHandler: ((T) -> Void)? = nil) {
         uuid = UUID()
         super.init(timeout: timeout, successHandler: successHandler)
     }
