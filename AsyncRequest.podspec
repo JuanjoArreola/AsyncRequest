@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "AsyncRequest"
-  s.version      = "2.1.4"
+  s.version      = "2.2.0"
   s.summary      = "Useful classes to handle asynchronous code"
 
   s.homepage     = "https://github.com/JuanjoArreola/AsyncRequest"
@@ -21,6 +21,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.tvos.deployment_target = "9.0"
 
+  s.swift_version = '5.0'
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 

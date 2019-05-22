@@ -21,7 +21,7 @@ public class UUIDTimeoutRequest<T>: TimeoutRequest<T>, Hashable, Equatable {
         return lhs.uuid == rhs.uuid
     }
     
-    public var hashValue: Int {
-        return uuid.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
     }
 }
